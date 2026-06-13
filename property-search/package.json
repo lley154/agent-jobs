@@ -1,0 +1,17 @@
+{
+  "name": "realtor-watch",
+  "version": "1.0.0",
+  "description": "Watch realtor.ca/mls for new listings by postal code",
+  "type": "module",
+  "bin": {
+    "realtor-watch": "./realtor-watch.mjs"
+  },
+  "scripts": {
+    "watch": "node watch.mjs",
+    "postinstall": "playwright install chromium"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "playwright": "^1.44.0"
+  }
+}

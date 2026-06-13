@@ -1,0 +1,18 @@
+# secrets
+.env
+
+# persistent browser profile (cookies / fingerprint / passed challenges)
+.profile/
+
+# dedup state
+seen.json
+
+# cron/scheduler log
+watch.log
+
+# deps
+node_modules/
+
+# playwright-cli scratch output
+.playwright/
+.playwright-cli/
