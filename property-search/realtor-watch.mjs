@@ -415,15 +415,23 @@ async function main() {
     const now = new Date().toISOString();
     const fresh = listings.filter((l) => !(l.id in bucket));
 
+    // Markdown output on stdout (debug/status go to stderr), so it can be piped
+    // straight into a .md file or a renderer where the links are clickable.
+    const day = now.slice(0, 10);
     console.log(
-      `\nPostal ${opts.postalCode}: ${listings.length} listing(s) shown, ${fresh.length} new.`,
+      `## ${opts.postalCode} — ${fresh.length} new of ${listings.length} shown · ${day}`,
     );
-    for (const l of fresh) {
-      console.log(`  • ${l.mls}  ${l.price}  ${l.address}`);
-      if (l.url) console.log(`    ${l.url}`);
-      bucket[l.id] = now;
+    console.log("");
+    if (fresh.length === 0) {
+      console.log("_No new listings._");
+    } else {
+      for (const l of fresh) {
+        const where = l.url ? `[${l.address}](${l.url})` : l.address;
+        console.log(`- **${l.price}** — ${where} — MLS ${l.mls}`);
+        bucket[l.id] = now;
+      }
+      saveSeen(seen);
     }
-    if (fresh.length > 0) saveSeen(seen);
   } catch (err) {
     console.error(`\nError: ${err.message}`);
     exitCode = 1;

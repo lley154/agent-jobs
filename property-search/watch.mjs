@@ -33,6 +33,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // ---- args -----------------------------------------------------------------
 const argv = process.argv.slice(2);
 const passthrough = argv.filter((a) => a.startsWith("--")); // forwarded to realtor-watch.mjs
+const debug = passthrough.includes("--debug");
 const postal = argv.filter((a) => !a.startsWith("--")).join(" ").trim();
 if (!postal) {
   console.error('Usage: node watch.mjs "A1A 1A1" [--debug]');
@@ -138,7 +139,7 @@ if (launchedHere) {
       /* ignore */
     }
   }
-  console.log(`Starting headless Chrome on port ${PORT} (profile: ${PROFILE})…`);
+  if (debug) console.error(`Starting headless Chrome on port ${PORT} (profile: ${PROFILE})…`);
   chrome = spawn(
     bin,
     [
@@ -174,7 +175,7 @@ if (launchedHere) {
   }
   await sleep(3000); // let the /mls landing page render the search box
 } else {
-  console.log(`Reusing Chrome already serving on port ${PORT}.`);
+  if (debug) console.error(`Reusing Chrome already serving on port ${PORT}.`);
 }
 
 // Run the watcher attached over CDP, inheriting stdio so its output shows.

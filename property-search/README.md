@@ -67,9 +67,25 @@ npm run watch -- "M5H 1T1"        # any OS (via package.json)
 watch.cmd "M5H 1T1"               # Windows convenience wrapper
 ```
 
-Output is one line per new listing (MLS · price · address) plus the details URL.
+Output is **Markdown** on stdout (status/debug go to stderr), so you can pipe it
+straight into a file or a renderer where the listing links are clickable:
+
+```bash
+node watch.mjs "M5H 1T1" > listings.md
+```
+
+Each run prints a `##` heading with the new/shown counts and date, then one
+bullet per new listing — price, the address as a clickable link to the listing,
+and its MLS number:
+
+```markdown
+## M5H 1T1 — 2 new of 11 shown · 2026-06-13
+
+- **$625,000** — [1509 - 179 METCALFE STREET, Ottawa, Ontario K2P0W1](https://www.realtor.ca/real-estate/29760379/…) — MLS X13135254
+```
+
 Re-running reports `0 new` until genuinely new listings appear. Add `--debug` to
-see the API-vs-DOM path counts.
+see the API-vs-DOM path counts (on stderr).
 
 If the Incapsula clearance eventually expires and a run reports a challenge/block,
 just repeat the [warm-up step](#one-time-setup-warm-the-profile) once.
