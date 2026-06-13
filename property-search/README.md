@@ -1,4 +1,4 @@
-# realtor-watch
+# Property Search
 
 A small personal watcher that searches [realtor.ca](https://www.realtor.ca/mls)
 by postal code and prints **only listings it hasn't seen before**. Runs on
