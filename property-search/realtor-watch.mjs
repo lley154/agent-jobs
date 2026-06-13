@@ -419,7 +419,7 @@ async function main() {
     // straight into a .md file or a renderer where the links are clickable.
     const day = now.slice(0, 10);
     console.log(
-      `## ${opts.postalCode} — ${fresh.length} new of ${listings.length} shown · ${day}`,
+      `#### ${opts.postalCode} — ${fresh.length} new of ${listings.length} shown · ${day}`,
     );
     console.log("");
     if (fresh.length === 0) {
