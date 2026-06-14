@@ -138,6 +138,28 @@ function saveSeen(store) {
 }
 
 // ---------------------------------------------------------------------------
+// Job manifest settings (./job.settings.json)
+// ---------------------------------------------------------------------------
+// The manifest lives beside this script in the job's working directory. We read
+// its `settings` block so a calling agent can pass program-defined options.
+// Best-effort: a missing or invalid file just yields the defaults below.
+// NOTE: these filters are RESERVED — they are surfaced (and logged with --debug)
+// but not yet applied to the realtor.ca search (see job.settings.json `_comment`).
+const JOB_SETTINGS_PATH = resolve(__dirname, "job.settings.json");
+
+function loadSettings() {
+  const defaults = { propertyType: "residential", priceMin: 0, priceMax: 0 };
+  if (!existsSync(JOB_SETTINGS_PATH)) return defaults;
+  try {
+    const { settings } = JSON.parse(readFileSync(JOB_SETTINGS_PATH, "utf8")) ?? {};
+    return { ...defaults, ...(settings ?? {}) };
+  } catch {
+    console.warn("job.settings.json was unreadable; using default settings.");
+    return defaults;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Listing extraction
 // ---------------------------------------------------------------------------
 /**
@@ -300,6 +322,17 @@ async function main() {
   if (!opts.postalCode) {
     usage();
     process.exit(2);
+  }
+
+  // Program-defined options from the job manifest. Surfaced for the caller and
+  // logged in debug; filtering against these is reserved for future work.
+  opts.settings = loadSettings();
+  if (opts.debug) {
+    const { propertyType, priceMin, priceMax } = opts.settings;
+    console.error(
+      `Settings: propertyType=${propertyType} priceMin=${priceMin} priceMax=${priceMax} ` +
+        "(filters reserved — not yet applied)",
+    );
   }
 
   const seen = loadSeen();

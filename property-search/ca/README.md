@@ -111,6 +111,44 @@ You can also drive a Chrome you started yourself (headed, to watch it work):
   --profile=DIR   launch-mode persistent profile dir (default ./.profile)
 ```
 
+### Testing / verifying a change (debug mode)
+
+To confirm a change works end-to-end, drive your **real, warmed Chrome over CDP**
+(attach mode) and pass `--debug`. realtor.ca hard-blocks Playwright-launched
+browsers, so a fresh automation browser returns "Access Denied — Error 15" and
+can't verify anything — you must use a real Chrome with the warmed profile.
+
+```bash
+# 1. Is a debug Chrome already serving? (skip step 2 if so)
+curl -s http://127.0.0.1:9222/json/version
+
+# 2. If not, launch the warmed Chrome on the DevTools port (leave it running):
+google-chrome --remote-debugging-port=9222 \
+  --user-data-dir="$HOME/.realtor-chrome" https://www.realtor.ca/mls
+
+# 3. Run the watcher attached to it, with debug output on stderr:
+node realtor-watch.mjs "M5H 1T1" --attach --debug
+
+# 4. When done, stop the Chrome you launched:
+pkill -f 'remote-debugging-port=9222'
+```
+
+A successful run prints, on **stderr**:
+
+```
+Settings: propertyType=residential priceMin=0 priceMax=0 (filters reserved — not yet applied)
+[debug] attach mode: using existing page as-is (https://www.realtor.ca/mls)
+[debug] API returned 11 listings
+```
+
+followed by the Markdown listing block on **stdout** (exit code `0`). The
+`Settings:` line confirms the job read `job.settings.json` from its working
+directory.
+
+> A real run records the listings in `seen.json`, so an immediate re-run reports
+> `0 new` for that postal until genuinely new listings appear. Delete `seen.json`
+> to reset for repeat testing.
+
 ### How the search works (and the map "nudge")
 
 In attach mode the watcher **does not navigate** — programmatic page loads raise
@@ -151,6 +189,30 @@ script depends on:
   price ← `Property.Price`, address ← `Property.Address.AddressText`,
   url ← `RelativeDetailsURL`).
 
+## Job manifest (`job.settings.json`)
+
+For an agent to run this job, its working directory must contain a
+`job.settings.json` manifest (see the [repo-level README](../README.md) for the
+convention). The agent reads `program[os]` to pick the executable and runs it
+with `args`, appending the search location:
+
+```jsonc
+{
+  "program": { "linux": "watch.sh", "macos": "watch.sh", "windows": "watch.cmd" },
+  "args": ["--headless"],            // agent appends the postal code, e.g. … "M5H 1T1"
+  "settings": {                      // program-defined; read by realtor-watch.mjs
+    "propertyType": "residential",
+    "priceMin": 0,                   // 0 = unbounded
+    "priceMax": 0                    // 0 = unbounded
+  }
+}
+```
+
+`realtor-watch.mjs` reads the `settings` block from this file at startup (run
+with `--debug` to see the active values on stderr). The `propertyType` /
+`priceMin` / `priceMax` filters are **reserved** — surfaced to the program but
+not yet applied to the realtor.ca search.
+
 ## Files
 
 | File | Role |
@@ -158,6 +220,7 @@ script depends on:
 | `watch.mjs` | Cross-platform launcher: starts headless Chrome, runs the watcher, cleans up |
 | `watch.sh` / `watch.cmd` | Thin per-OS wrappers around `watch.mjs` |
 | `realtor-watch.mjs` | The watcher itself (search → capture API → dedup → print) |
+| `job.settings.json` | Manifest an agent reads to launch the job (program, args, settings) |
 | `seen.json` | Per-postal record of seen listing Ids (delete to reset) |
 
 ## Notes

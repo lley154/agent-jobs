@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "name": "Property Search (Canada)",
+  "description": "Watch realtor.ca for new MLS listings by postal code or location.",
+  "program": {
+    "linux": "watch.sh",
+    "macos": "watch.sh",
+    "windows": "watch.cmd"
+  },
+  "args": ["--headless"],
+  "settings": {
+    "_comment": "Program-defined; the job reads this from its own working directory. Reserved for future realtor.ca search filters — property-search currently ignores it.",
+    "propertyType": "residential",
+    "priceMin": 0,
+    "priceMax": 0
+  }
+}
