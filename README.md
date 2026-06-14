@@ -6,7 +6,7 @@ reads to learn *how* to launch the job — it does not run the job itself.
 
 A generic template lives at the repo root: [`job.settings.json.template`](./job.settings.json.template).
 Copy it into a job directory and fill it in. For a real example, see
-[`ca/job.settings.json`](./ca/job.settings.json).
+[`property-search/ca/job.settings.json`](./property-search/ca/job.settings.json).
 
 ```json
 {
