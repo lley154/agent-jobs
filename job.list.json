@@ -1,0 +1,6 @@
+  {
+    "version": 1,
+    "jobs": [
+      { "name": "property-search-ca", "path": "property-search/ca/job.settings.json" }
+    ] 
+  }
