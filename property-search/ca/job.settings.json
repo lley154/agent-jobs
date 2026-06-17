@@ -13,5 +13,35 @@
     "propertyType": "residential",
     "priceMin": 0,
     "priceMax": 0
+  },
+  "init": {
+    "requires": ["node"],
+    "steps": [
+      {
+        "id": "install",
+        "title": "Install dependencies",
+        "run": {
+          "linux": "npm install",
+          "macos": "npm install",
+          "windows": "npm install"
+        }
+      },
+      {
+        "id": "warm-profile",
+        "title": "Sign in / clear the realtor.ca bot check",
+        "interactive": true,
+        "instructions": "A Chrome window will open realtor.ca. Solve any \"Pardon Our Interruption\" check, and if a location prompt appears click Block. Then close the window — the clearance cookies persist in the profile. (If realtor.ca shows \"Access Denied\" you're on a blocked VPN/proxy IP; turn it off and retry.)",
+        "launch": {
+          "linux": "google-chrome --remote-debugging-port=9222 --user-data-dir=\"$HOME/.realtor-chrome\" https://www.realtor.ca/mls",
+          "macos": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --remote-debugging-port=9222 --user-data-dir=\"$HOME/.realtor-chrome\" https://www.realtor.ca/mls",
+          "windows": "& \"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --remote-debugging-port=9222 --user-data-dir=\"$env:USERPROFILE\\.realtor-chrome\" https://www.realtor.ca/mls"
+        }
+      }
+    ],
+    "verify": {
+      "linux": "test -d \"$HOME/.realtor-chrome\"",
+      "macos": "test -d \"$HOME/.realtor-chrome\"",
+      "windows": "if (Test-Path \"$env:USERPROFILE\\.realtor-chrome\") { exit 0 } else { exit 1 }"
+    }
   }
 }

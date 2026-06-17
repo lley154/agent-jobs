@@ -10,5 +10,17 @@
   "args": [],
   "settings": {
     "_comment": "Program-defined options. The job reads this `settings` block from its own working directory; the calling agent does not interpret it. Add whatever keys your program understands."
+  },
+  "init": {
+    "_comment": "OPTIONAL one-time setup the agent runs before first use. Remove this block if the job needs none. See README.md → One-time initialization.",
+    "requires": [],
+    "steps": [
+      {
+        "id": "install",
+        "title": "Install dependencies",
+        "run": { "linux": "npm install", "macos": "npm install", "windows": "npm install" }
+      }
+    ],
+    "verify": {}
   }
 }
