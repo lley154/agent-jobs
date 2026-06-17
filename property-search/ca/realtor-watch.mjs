@@ -232,6 +232,31 @@ async function listingsFromDom(page) {
 }
 
 // ---------------------------------------------------------------------------
+// Markdown output safety
+// ---------------------------------------------------------------------------
+// Listing fields (address/price) are third-party content from realtor.ca, so
+// they must be treated as untrusted before being emitted as Markdown that the
+// README pipes into a renderer with clickable links. Escape the inline-Markdown
+// metacharacters so a crafted value can't forge a link or break formatting.
+export function escapeMarkdown(text) {
+  return String(text ?? "").replace(/[\\`*_{}\[\]()#+\-.!|<>~]/g, "\\$&");
+}
+
+// Only emit a URL as a link target if it's an https realtor.ca address; anything
+// else (other scheme/host, e.g. a javascript: or off-site URL injected via a
+// rogue listing record) is rejected so it can't become a clickable link.
+export function safeRealtorUrl(url) {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:") return "";
+    if (u.hostname !== "realtor.ca" && u.hostname !== "www.realtor.ca") return "";
+    return u.href;
+  } catch {
+    return "";
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Page helpers
 // ---------------------------------------------------------------------------
 /** Lowercased title+body text across the top document and every child frame. */
@@ -459,8 +484,12 @@ async function main() {
       console.log("_No new listings._");
     } else {
       for (const l of fresh) {
-        const where = l.url ? `[${l.address}](${l.url})` : l.address;
-        console.log(`- **${l.price}** — ${where} — MLS ${l.mls}`);
+        const address = escapeMarkdown(l.address);
+        const price = escapeMarkdown(l.price);
+        const mls = escapeMarkdown(l.mls);
+        const url = safeRealtorUrl(l.url);
+        const where = url ? `[${address}](${url})` : address;
+        console.log(`- **${price}** — ${where} — MLS ${mls}`);
         bucket[l.id] = now;
       }
       saveSeen(seen);
