@@ -15,7 +15,7 @@
     "priceMax": 0
   },
   "init": {
-    "requires": ["node"],
+    "requires": ["node", "chrome"],
     "steps": [
       {
         "id": "install",
